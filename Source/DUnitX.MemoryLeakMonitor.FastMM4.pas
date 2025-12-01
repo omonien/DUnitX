@@ -37,6 +37,7 @@ uses
   {$ELSE}
   Classes,
   {$ENDIF}
+  FastMM4,
   DUnitX.TestFramework;
 
 implementation
@@ -54,7 +55,6 @@ type
     FPostTestAllocation : Int64;
     FPreTearDownAllocation : Int64;
     FPostTearDownAllocation : Int64;
-
     function GetMemoryAllocated() : Int64;
   public
     procedure PreSetup;
@@ -75,17 +75,10 @@ type
 
 function TDUnitXFastMM4MemoryLeakMonitor.GetMemoryAllocated: Int64;
 var
-  st: TMemoryManagerState;
-  sb: TSmallBlockTypeState;
+  LSummary: TMemoryManagerUsageSummary;
 begin
-  GetMemoryManagerState(st);
-
-  Result := st.TotalAllocatedMediumBlockSize + st.TotalAllocatedLargeBlockSize;
-
-  for sb in st.SmallBlockTypeStates do
-  begin
-    Result := Result + Int64(sb.UseableBlockSize * sb.AllocatedBlockCount);
-  end;
+  GetMemoryManagerUsageSummary(LSummary);
+  Result := Int64(LSummary.AllocatedBytes);
 end;
 
 procedure TDUnitXFastMM4MemoryLeakMonitor.PostSetUp;
